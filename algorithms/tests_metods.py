@@ -1,11 +1,16 @@
+import math
 import matplotlib.pyplot as plt
 import metodi_soluzione as ms
 import metodi_fattorizzazione as mf
+import funzioni_interpolazione as fi
+import ricerca_raduci_funzione as rrf
 import time
 import numpy as np
+from welcome import welcome
 
 
-def test(N):
+def test_fattorizzazione(N):
+    print(welcome("Ab = x risoluzioni"))
     t_Soluzione_Gauss = []
     t_soluzione_ALU_senza_Pivot = []
     t_soluzione_Cramer = []
@@ -166,11 +171,161 @@ def test(N):
     plt.plot(range(2, N + 1, 5), t_build_in, 'brown',
              label='SOLUZIONE CON METODO np.linalg.solve')
 
-
     plt.xlabel('N')
     plt.ylabel('Tempo')
     plt.legend()
     plt.show()
 
 
-test(200)
+###################################################################
+# PARAMETRI IN INPUT
+###################################################################
+# a: float = Punto sx intervallo di interpolazione
+# b: float = Punto dx intervallo di interpolazione
+#
+# n: int = Grado del polinomio
+# nx: int = Nro di x da calcolare
+#
+# fun: function = Riferimento a funzione da interpolare
+#
+###################################################################
+
+
+def testInterpolazione(a: float, b: float, n: int, nx: int, fun):
+    print(welcome("Algoritmi di interpolazione"))
+    # Grado ed i nodi di interpolazione
+    xn: np.ndarray = np.linspace(a, b, n + 1)
+    yn: np.ndarray = fun(xn)
+
+    # Creazione dell'insieme delle x su cui testare il polinomio di interpolazione
+    x: np.ndarray = np.linspace(a, b, nx)
+
+    # Calcolo della funzione per ogni xi in x
+    fx: np.ndarray = fun(x)
+
+    # Calcolo delle x con i polinomi di interpolazione (Lagrange, Newton)
+    px_lagrange: np.ndarray = fi.metodo_Lagrange(xn, yn, x)
+    px_newton: np.ndarray = fi.metodo_Newton(xn, yn, x)
+
+    plt.plot(1)
+    plt.plot(x, px_lagrange, 'tab:orange', label='Lagrange')
+    plt.plot(x, px_newton, 'tab:blu', label='Newton')
+    plt.plot(x, fx, 'k--', label='f(x) = cos(x)')
+    plt.plot(xn, yn, 'ro')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend()
+    plt.show()
+
+    plt.plot(2)
+    plt.plot(x, abs(fx - px_lagrange), "blue", label='|f(x) - Pn_Lagrange(x)|')
+    plt.plot(x, abs(fx - px_newton), "red", label='|f(x) - Pn_Newton(x)|')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend()
+    plt.show()
+
+
+def test_nodi(a: float, b: float, nx: int, nmax: int, fun):
+    print(welcome("Calcolo dei nodi"))
+    x = np.linspace(a, b, nx)
+    fx = fun(x)
+
+    resto_eq_lagrange = np.zeros(nmax)
+    resto_ch_lagrange = np.zeros(nmax)
+
+    resto_eq_newton = np.zeros(nmax)
+    resto_ch_newton = np.zeros(nmax)
+
+    for n in range(nmax):
+        xn_eq = np.linspace(a, b, n + 1)
+        yn_eq = fun(xn_eq)
+
+        px_eq_lagrange = fi.metodo_Lagrange(xn_eq, yn_eq, x)
+        px_eq_newton = fi.metodo_Newton(xn_eq, yn_eq, x)
+
+        xn_ch = fi.nodi_Chebyshev(a, b, n + 1)
+        yn_ch = fun(xn_ch)
+
+        px_ch_lagrange = fi.metodo_Lagrange(xn_ch, yn_ch, x)
+        px_ch_newton = fi.metodo_Newton(xn_ch, yn_ch, x)
+
+        resto_eq_lagrange[n] = max(abs(fx - px_eq_lagrange))
+        resto_ch_lagrange[n] = max(abs(fx - px_ch_lagrange))
+
+        resto_eq_newton[n] = max(abs(fx - px_eq_newton))
+        resto_ch_newton[n] = max(abs(fx - px_ch_newton))
+
+    plt.figure(3)
+    plt.semilogy(range(nmax), resto_eq_lagrange, "red", label="MAX RESTO NODI EQUILIBRATI (Lagrange)")
+    plt.semilogy(range(nmax), resto_ch_lagrange, "green", label="MAX RESTO NODI DI CHEBISHEV (Lagrange)")
+
+    plt.semilogy(range(nmax), resto_eq_lagrange, "blue", label="MAX RESTO NODI EQUILIBRATI (Newton)")
+    plt.semilogy(range(nmax), resto_ch_lagrange, "black", label="MAX RESTO NODI DI CHEBISHEV (Newton)")
+
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend()
+    plt.show()
+
+
+def vettore_standard(err, l_max):
+    v = np.array([i - i for i in range(l_max)], dtype=float)
+
+    for i in range(len(err)):
+        v[i] = err[i]
+    return np.array(v)
+
+
+def test_ricerca_radici():
+    # soluzione reale del problema
+    x_reale = math.sqrt(11)
+
+    # numero massimo iterazioni
+    k_max = 35
+
+    # tolleranza per l'arresto del criterio
+    tolleranza = mf.epsilon_machine()
+
+    # estremi dell'intervallo
+    a = -2
+    b = 4
+
+    # ora calcolo la soluzione e il vettore degli errori per il metodo delle Bisezioni Successive
+    sol_BS, err_BS = rrf.metodo_Bisezioni_Successive(a, b, tolleranza, x_reale, rrf.f)
+
+    # punto iniziale del metodo di newton
+    x0 = 3
+
+    sol_New, err_New = rrf.metodo_Newton(x0, tolleranza, k_max, x_reale, rrf.f, rrf.df)
+
+    #punti iniziali del metodo delle secanti
+
+    x0 = 1
+    x1 = 3
+
+    sol_Sec, err_Sec = rrf.metodo_Secanti(x0, x1, tolleranza, k_max, x_reale, rrf.f)
+
+    # punti iniziali del metodo Corde
+    x0 = 0
+    m = 4
+
+    sol_Corde, err_Corde = rrf.metodo_Corde(x0, m, tolleranza, k_max, x_reale, rrf.f)
+
+    len_max_err = max(len(err_BS), len(err_New), len(err_Sec), len(err_Corde))
+
+    err_BS = vettore_standard(err_BS, len_max_err)
+    err_New = vettore_standard(err_New, len_max_err)
+    err_Sec = vettore_standard(err_Sec, len_max_err)
+    err_Corde = vettore_standard(err_Corde, len_max_err)
+
+    plt.plot(1)
+    plt.semilogy(range(len_max_err), err_BS, "orange", label = "Metodo delle Bisezioni Successive")
+    plt.semilogy(range(len_max_err), err_New, "green", label = "Metodo di Newton")
+    plt.semilogy(range(len_max_err), err_Sec, "red", label = "Metodo delle Secanti")
+    plt.semilogy(range(len_max_err), err_Corde, "blue", label = "Metodo delle Corde")
+
+    plt.legend()
+    plt.xlabel("Nro. Iterazioni")
+    plt.ylabel('Errore')
+    plt.show()
