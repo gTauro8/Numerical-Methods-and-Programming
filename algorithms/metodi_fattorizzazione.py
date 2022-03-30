@@ -6,6 +6,7 @@ def epsilon_machine():
     while eps + 1 > 1:
         eps /= 2
     eps *= 2
+    print (eps)
     return eps
 
 

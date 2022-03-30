@@ -27,7 +27,7 @@ def menu():
         elif choice == '4':
             test_ricerca_radici()
         elif choice == '5':
-            print("ciao2")
+            test_funzioni_calcolo_integrale()
         elif choice == '0':
             exit()
         os.system("cls")

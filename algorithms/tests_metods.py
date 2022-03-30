@@ -7,6 +7,7 @@ import ricerca_raduci_funzione as rrf
 import time
 import numpy as np
 from welcome import welcome
+import calcolo_integrale as ci
 
 
 def test_fattorizzazione(N):
@@ -191,7 +192,7 @@ def test_fattorizzazione(N):
 ###################################################################
 
 
-def testInterpolazione(a: float, b: float, n: int, nx: int, fun):
+def testInterpolazione(a: float, b: float, n: int, nx: int, fun: type('function')):
     print(welcome("Algoritmi di interpolazione"))
     # Grado ed i nodi di interpolazione
     xn: np.ndarray = np.linspace(a, b, n + 1)
@@ -226,7 +227,7 @@ def testInterpolazione(a: float, b: float, n: int, nx: int, fun):
     plt.show()
 
 
-def test_nodi(a: float, b: float, nx: int, nmax: int, fun):
+def test_nodi(a: float, b: float, nx: int, nmax: int, fun: type('function')):
     print(welcome("Calcolo dei nodi"))
     x = np.linspace(a, b, nx)
     fx = fun(x)
@@ -279,15 +280,18 @@ def vettore_standard(err, l_max):
 
 def test_ricerca_radici():
     # soluzione reale del problema
+
     x_reale = math.sqrt(11)
 
     # numero massimo iterazioni
     k_max = 35
 
     # tolleranza per l'arresto del criterio
+
     tolleranza = mf.epsilon_machine()
 
     # estremi dell'intervallo
+
     a = -2
     b = 4
 
@@ -299,7 +303,7 @@ def test_ricerca_radici():
 
     sol_New, err_New = rrf.metodo_Newton(x0, tolleranza, k_max, x_reale, rrf.f, rrf.df)
 
-    #punti iniziali del metodo delle secanti
+    # punti iniziali del metodo delle secanti
 
     x0 = 1
     x1 = 3
@@ -320,12 +324,57 @@ def test_ricerca_radici():
     err_Corde = vettore_standard(err_Corde, len_max_err)
 
     plt.plot(1)
-    plt.semilogy(range(len_max_err), err_BS, "orange", label = "Metodo delle Bisezioni Successive")
-    plt.semilogy(range(len_max_err), err_New, "green", label = "Metodo di Newton")
-    plt.semilogy(range(len_max_err), err_Sec, "red", label = "Metodo delle Secanti")
-    plt.semilogy(range(len_max_err), err_Corde, "blue", label = "Metodo delle Corde")
+    plt.semilogy(range(len_max_err), err_BS, "orange", label="Metodo delle Bisezioni Successive")
+    plt.semilogy(range(len_max_err), err_New, "green", label="Metodo di Newton")
+    plt.semilogy(range(len_max_err), err_Sec, "red", label="Metodo delle Secanti")
+    plt.semilogy(range(len_max_err), err_Corde, "blue", label="Metodo delle Corde")
 
     plt.legend()
     plt.xlabel("Nro. Iterazioni")
     plt.ylabel('Errore')
     plt.show()
+
+
+def test_calcolo_integrale(f, F, a, b, N_INTERVALLI: int , grado: int):
+    err_Trapezio = []
+    err_Simpson = []
+    err_Boole = []
+
+    I_REALE = ci.I(F, a, b)
+
+    for N in range(N_INTERVALLI):
+        IC_TRAPEZIO = ci.formula_Composta(f, ci.formula_trapezio, a, b, N)
+        IC_SIMPSON = ci.formula_Composta(f, ci.formula_Simpson, a, b, N)
+        IC_BOOLE = ci.formula_Composta(f, ci.formula_Boole, a, b, N)
+
+        err_T = abs(I_REALE - IC_TRAPEZIO)
+        err_S = abs(I_REALE - IC_SIMPSON)
+        err_B = abs(I_REALE - IC_BOOLE)
+
+        err_Trapezio.append(err_T)
+        err_Simpson.append(err_S)
+        err_Boole.append(err_B)
+
+        print("Intervallo [a, b] diviso in " + str(N) + "in sottointervalli")
+        print("Errore formula COMPOSTA TRAPEZIO: |I - TC| = %f" % err_T)
+        print("Errore formula COMPOSTA SIMPSON: |I - SC| = %f" % err_S)
+        print("Errore formula COMPOSTA BOOLE: |I - BC| = %f" % err_B)
+
+        plt.figure(1)
+        plt.semilogy(range(N_INTERVALLI), err_Trapezio, 'b-*', label='Trapezio composto')
+        plt.semilogy(range(N_INTERVALLI), err_Simpson, 'r-*', label='Simpson composto')
+        plt.semilogy(range(N_INTERVALLI), err_Boole, 'g-*', label='Boole composto')
+
+        plt.xlabel('N')
+        plt.ylabel('Errore')
+        plt.legend()
+        plt.title('Errore al variare di N (f(x) di' + str(grado) + "grado)")
+
+
+def test_funzioni_calcolo_integrale():
+    test_calcolo_integrale(ci.f1, ci.F1, ci.a, ci.b, 200, 1)
+    print("----------------------------------------------------------------\n")
+    test_calcolo_integrale(ci.f3, ci.F3, ci.a, ci.b, 200, 3)
+    print("----------------------------------------------------------------\n")
+    test_calcolo_integrale(ci.f5, ci.F5, ci.a, ci.b, 200, 5)
+    print("----------------------------------------------------------------\n")

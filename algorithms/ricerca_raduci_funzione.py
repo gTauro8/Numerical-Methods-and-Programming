@@ -21,20 +21,20 @@ def metodo_Bisezioni_Successive(a: float, b: float, tolleranza: float, x_reale: 
         print('Errore: non garantita radice in [%f; %f]' % (a, b))
     else:
         n = math.ceil(math.log2((b - a) / tolleranza)) - 1
-        e = np.zeros(n + 1)  # def dell'errore
+        err = np.zeros(n + 1)  # def dell'errore
 
         for k in range(n + 1):
             c = (a + b) / 2
             fc = fun(c)
 
-            e[k] = abs(x_reale - c)
+            err[k] = abs(x_reale - c)
             if fa * fc < 0:
                 b = c
             else:
                 a = c
                 fa = fc
 
-    return c, e
+    return c, err
 
 
 def metodo_Newton(x0: float, tolleranza: float, kmax: int, x_reale: float, fun, dfun):
@@ -76,7 +76,7 @@ def metodo_Secanti(x0, x1, tolleranza, k_max, x_reale: float, fun):
     stop = 0
 
     while not stop and iterazioni < k_max:
-        x2 = x1 - ((fx1*(x1 - x0)) / (fx1 - fx0))
+        x2 = x1 - ((fx1 * (x1 - x0)) / (fx1 - fx0))
         fx2 = fun(x2)
 
         stop = abs(fx2) + abs(x2 - x1) / abs(x2) < tolleranza / 5
@@ -92,7 +92,7 @@ def metodo_Secanti(x0, x1, tolleranza, k_max, x_reale: float, fun):
             fx1 = fx2
 
     if not stop:
-        print("Accuratezza del metodo raggiunta in %d iterazioni" %(int(iterazioni)))
+        print("Accuratezza del metodo raggiunta in %d iterazioni" % (int(iterazioni)))
 
     return x1, err
 
@@ -105,17 +105,19 @@ def metodo_Corde(x0: float, m, tolleranza, kmax, x_reale: float, fun):
     stop = 0
 
     while not stop and iterazioni < kmax:
-        x1 = x0 - fx0/m
+        x1 = x0 - fx0 / m
         fx1 = fun(x1)
 
         stop = abs(fx1) + abs(x1 - x0) / abs(x1) < tolleranza / 5
-        err.append(abs(x_reale - 1))
+        err.append(abs(x_reale - x1))
 
         iterazioni += 1
 
         if not stop:
-            print("Accuratezza del metodo raggiunta in %d iterazioni" %(int(iterazioni)))
+            x0 = x1
+            fx0 = fx1
+
+    if not stop:
+        print("Accuratezza del metodo raggiunta in %d iterazioni" % (int(iterazioni)))
 
         return x1, err
-
-
