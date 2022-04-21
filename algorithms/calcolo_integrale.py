@@ -1,8 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
-def formula_trapezio(f, a, b):
+def formula_trapezio(f, a: int, b: int):
     return ((b - a) / 2) * (f(a) + f(b))
 
 
@@ -14,6 +13,7 @@ def formula_Simpson(f, a, b):
 def formula_Boole(f, a, b):
     t = np.linspace(a, b, 5)
     return float(((t[4] - t[0]) / 90) * (7 * f(t[0]) + 32 * f(t[1]) + 12 * f(t[2]) + 32 * f(t[3]) + 7 * (t[4])))
+
 
 # generalizzazione di composizione per i metodi (TRAPEZIO, SIMPSON, BOOLE)
 
@@ -30,7 +30,7 @@ def formula_Composta(f, formula, a, b, N):
 
 # funzione di primo grado
 def f1(x):
-    return 8 * x - 4
+    return 8*x - 4
 
 
 def F1(x):
@@ -62,7 +62,4 @@ def F5(x):
 def I(F, a, b):
     return F(b) - F(a)
 
-
-a = - 10
-b = 10
 

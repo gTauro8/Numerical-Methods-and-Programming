@@ -7,7 +7,7 @@ def coefficienti_indeterminati(xn: np.ndarray, yn: np.ndarray, x):
     n = len(xn)
     p = np.zeros(len(x))
 
-    # costruzione della matrice di Vandermonde
+    # costruzione della matrice di Vandermonden
     A = np.zeros((n, n))
 
     for i in range(n):
@@ -95,7 +95,6 @@ def calcola_Newton(x: float, xn: np.ndarray, d: np.ndarray) -> float:
 
 def metodo_Newton(xn: np.ndarray, yn: np.ndarray, x: np.ndarray) -> np.ndarray:
     len_x: int = len(x)
-
     d: np.ndarray = differenze_finite(xn, yn)
     p: np.ndarray = np.zeros(len_x)
 
@@ -106,4 +105,7 @@ def metodo_Newton(xn: np.ndarray, yn: np.ndarray, x: np.ndarray) -> np.ndarray:
 
 
 def nodi_Chebyshev(a: float, b: float, n: int) -> np.ndarray:
-    return np.copy([(a + (np.cos((2 * i + 1) / (2 * n + 2) * np.pi) + 1) * ((b - a) / 2)) for i in range(1, n)])
+    x = np.empty(n)
+    for i in range(n):
+        x[i] = a + (np.cos((2*i+1)/(2*n+2)*np.pi) + 1) * (b-a)/2
+    return x

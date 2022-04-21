@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import metodi_soluzione as ms
 import metodi_fattorizzazione as mf
 import funzioni_interpolazione as fi
-import ricerca_raduci_funzione as rrf
+import ricerca_radici_funzione as rrf
 import time
 import numpy as np
 from welcome import welcome
@@ -209,8 +209,8 @@ def testInterpolazione(a: float, b: float, n: int, nx: int, fun: type('function'
     px_newton: np.ndarray = fi.metodo_Newton(xn, yn, x)
 
     plt.plot(1)
-    plt.plot(x, px_lagrange, 'tab:orange', label='Lagrange')
-    plt.plot(x, px_newton, 'tab:blu', label='Newton')
+    plt.plot(x, px_lagrange, color='orange', label='Lagrange')
+    plt.plot(x, px_newton, color='blue', label='Newton')
     plt.plot(x, fx, 'k--', label='f(x) = cos(x)')
     plt.plot(xn, yn, 'ro')
     plt.xlabel('x')
@@ -219,10 +219,11 @@ def testInterpolazione(a: float, b: float, n: int, nx: int, fun: type('function'
     plt.show()
 
     plt.plot(2)
-    plt.plot(x, abs(fx - px_lagrange), "blue", label='|f(x) - Pn_Lagrange(x)|')
-    plt.plot(x, abs(fx - px_newton), "red", label='|f(x) - Pn_Newton(x)|')
+    plt.plot(x, abs(fx - px_lagrange), "red", label='|f(x) - Pn_Lagrange(x)|')
+    plt.plot(x, abs(fx - px_newton), "green", label='|f(x) - Pn_Newton(x)|')
     plt.xlabel('x')
     plt.ylabel('y')
+    plt.yscale('log')
     plt.legend()
     plt.show()
 
@@ -261,8 +262,8 @@ def test_nodi(a: float, b: float, nx: int, nmax: int, fun: type('function')):
     plt.semilogy(range(nmax), resto_eq_lagrange, "red", label="MAX RESTO NODI EQUILIBRATI (Lagrange)")
     plt.semilogy(range(nmax), resto_ch_lagrange, "green", label="MAX RESTO NODI DI CHEBISHEV (Lagrange)")
 
-    plt.semilogy(range(nmax), resto_eq_lagrange, "blue", label="MAX RESTO NODI EQUILIBRATI (Newton)")
-    plt.semilogy(range(nmax), resto_ch_lagrange, "black", label="MAX RESTO NODI DI CHEBISHEV (Newton)")
+    plt.semilogy(range(nmax), resto_eq_newton, "orange", label="MAX RESTO NODI EQUILIBRATI (Newton)")
+    plt.semilogy(range(nmax), resto_ch_newton, "lightblue", label="MAX RESTO NODI DI CHEBISHEV (Newton)")
 
     plt.xlabel('x')
     plt.ylabel('y')
@@ -335,12 +336,17 @@ def test_ricerca_radici():
     plt.show()
 
 
-def test_calcolo_integrale(f, F, a, b, N_INTERVALLI: int , grado: int):
+a = - 10
+b = 10
+
+
+def test_calcolo_integrale(f, F, a, b, N_INTERVALLI, grado):
     err_Trapezio = []
     err_Simpson = []
     err_Boole = []
 
     I_REALE = ci.I(F, a, b)
+    print('I_REALE:', I_REALE)
 
     for N in range(N_INTERVALLI):
         IC_TRAPEZIO = ci.formula_Composta(f, ci.formula_trapezio, a, b, N)
@@ -360,21 +366,22 @@ def test_calcolo_integrale(f, F, a, b, N_INTERVALLI: int , grado: int):
         print("Errore formula COMPOSTA SIMPSON: |I - SC| = %f" % err_S)
         print("Errore formula COMPOSTA BOOLE: |I - BC| = %f" % err_B)
 
-        plt.figure(1)
-        plt.semilogy(range(N_INTERVALLI), err_Trapezio, 'b-*', label='Trapezio composto')
-        plt.semilogy(range(N_INTERVALLI), err_Simpson, 'r-*', label='Simpson composto')
-        plt.semilogy(range(N_INTERVALLI), err_Boole, 'g-*', label='Boole composto')
 
-        plt.xlabel('N')
-        plt.ylabel('Errore')
-        plt.legend()
-        plt.title('Errore al variare di N (f(x) di' + str(grado) + "grado)")
+    plt.figure(1)
+    plt.semilogy(range(N_INTERVALLI), err_Trapezio, 'b-*', label='Trapezio composto')
+    plt.semilogy(range(N_INTERVALLI), err_Simpson, 'r-*', label='Simpson composto')
+    plt.semilogy(range(N_INTERVALLI), err_Boole, 'g-*', label='Boole composto')
+
+    plt.xlabel('N')
+    plt.ylabel('Errore')
+    plt.legend()
+    plt.title('Errore al variare di N (f(x) di' + str(grado) + "grado)")
 
 
 def test_funzioni_calcolo_integrale():
-    test_calcolo_integrale(ci.f1, ci.F1, ci.a, ci.b, 200, 1)
+    test_calcolo_integrale(ci.f1, ci.F1, a, b, 200, 1)
     print("----------------------------------------------------------------\n")
-    test_calcolo_integrale(ci.f3, ci.F3, ci.a, ci.b, 200, 3)
+    test_calcolo_integrale(ci.f3, ci.F3, a, b, 200, 3)
     print("----------------------------------------------------------------\n")
-    test_calcolo_integrale(ci.f5, ci.F5, ci.a, ci.b, 200, 5)
+    test_calcolo_integrale(ci.f5, ci.F5, a, b, 200, 5)
     print("----------------------------------------------------------------\n")
